@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Romantic Scrapbook</title>
+  <link href="https://fonts.googleapis.com/css?family=Great+Vibes|Lato:400,700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --accent: #F3B8C4;
+      --light: #FFF5F9;
+      --soft: #FFF0F6;
+      --lavender: #e4d6fa;
+      --gold: #fbe8a6;
+      --text: #7C5177;
+      --page-bg: linear-gradient(135deg, var(--soft) 0%, var(--lavender) 100%);
+    }
+    body {
+      margin: 0;
+      font-family: 'Lato', sans-serif;
+      background: var(--page-bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    .music-player-fixed {
+      position: fixed;
+      top: 22px;
+      right: 22px;
+      z-index: 200;
+      background: rgba(255,245,249,0.97);
+      border-radius: 1.2em;
+      box-shadow: 0 2px 8px #f3b8c440;
+      padding: 0.2em 1em 0.15em 1em;
+      display: flex;
+      align-items: center;
+      gap: 0.5em;
+    }
+    .music-player-fixed audio {
+      width: 180px;
+      max-width: 230px;
+      outline: none;
+      border-radius: 1em;
+    }
+    .music-player-fixed span {
+      color: #b68bb4;
+      font-size: 1em;
+      font-family: 'Lato', sans-serif;
+    }
+    .next-btn {
+      margin: 2.5em auto 0 auto;
+      padding: 0.8em 2.8em;
+      border: none;
+      border-radius: 1.6em;
+      font-size: 1.2em;
+      color: white;
+      background: linear-gradient(90deg, var(--accent), var(--gold));
+      font-family: 'Lato', sans-serif;
+      font-weight: bold;
+      box-shadow: 0 4px 20px #fbe8a640;
+      cursor: pointer;
+      letter-spacing: 1px;
+      transition: background 0.2s, color 0.2s, transform 0.14s;
+      position: relative;
+      outline: none;
+    }
+    .next-btn:hover, .next-btn:focus {
+      background: linear-gradient(90deg, var(--gold), var(--accent));
+      color: var(--text);
+      transform: scale(1.07);
+    }
+    .scrapbook-title {
+      font-family: 'Great Vibes', cursive;
+      font-size: 2.7rem;
+      color: var(--accent);
+      margin-top: 1.2em;
+      letter-spacing: 2px;
+      text-shadow: 0 4px 30px #f3b8c430, 0 1.5px 0px #fff;
+      margin-bottom: 1.3em;
+      animation: popIn 1.6s cubic-bezier(.68,-0.55,.27,1.55);
+    }
+    @keyframes popIn {
+      0% { opacity: 0; transform: scale(0.6);}
+      60%{ opacity: 1; transform: scale(1.15);}
+      100%{ opacity: 1; transform: scale(1);}
+    }
+    section {
+      display: none;
+      max-width: 1100px;
+      margin: 2.5rem auto 0 auto;
+      background: rgba(255,255,255,0.91);
+      border-radius: 2em;
+      box-shadow: 0 4px 32px rgba(243,184,196,0.20);
+      padding: 1.8rem 2rem 2.2rem 2rem;
+      text-align: center;
+      position: relative;
+      overflow: visible;
+      min-height: 400px;
+      animation: fadeout 0.7s;
+      opacity: 0;
+      pointer-events: none;
+    }
+    section.active {
+      display: block;
+      animation: fadein 0.9s;
+      opacity: 1;
+      pointer-events: auto;
+      z-index: 5;
+    }
+    @keyframes fadein {
+      from { opacity: 0; transform: scale(0.97) translateY(30px);}
+      to { opacity: 1; transform: none;}
+    }
+    @keyframes fadeout {
+      from { opacity: 1;}
+      to { opacity: 0;}
+    }
+    .scrapbook-page {
+      background: url('https://www.transparenttextures.com/patterns/old-mathematics.png') repeat;
+      border: 5px solid var(--gold);
+      border-radius: 36px;
+      box-shadow: 0 8px 48px #f3b8c442;
+      padding: 1.6em 0.7em 2.2em 0.7em;
+      margin: 1.7em 0;
+      position: relative;
+      min-height: 320px;
+      overflow: visible;
+      animation: scrapbookPop 1.3s cubic-bezier(.68,-0.55,.27,1.55);
+    }
+    @keyframes scrapbookPop {
+      0% {transform: scale(0.8) rotate(-3deg);}
+      60%{transform: scale(1.05) rotate(3deg);}
+      100%{transform: scale(1) rotate(0);}
+    }
+    .scrapbook-photo {
+      width: 170px;
+      height: 170px;
+      object-fit: cover;
+      border-radius: 22px 38px 21px 35px / 28px 26px 34px 30px;
+      border: 4px solid var(--accent);
+      margin: 1.2em;
+      box-shadow: 0 4px 18px #f3b8c480, 0 1px 0px #fff;
+      background: #fff;
+      position: relative;
+      transform: rotate(-2deg);
+      animation: floatPhoto 3.5s ease-in-out infinite alternate;
+      transition: box-shadow 0.2s, border 0.2s, transform 0.2s;
+      cursor: pointer;
+      overflow: visible;
+    }
+    .scrapbook-photo:nth-child(even) { transform: rotate(3deg);}
+    .scrapbook-photo:nth-child(3n) { transform: rotate(-4deg);}
+    .scrapbook-photo:active, .scrapbook-photo.active {
+      border-color: var(--gold);
+      box-shadow: 0 8px 28px #fbe8a690, 0 4px 18px #f3b8c480;
+      z-index: 2;
+      transform: scale(1.06) rotate(-1deg);
+    }
+    @keyframes floatPhoto {
+      to { box-shadow: 0 10px 32px #f3b8c432, 0 2px 6px #f3b8c466; }
+    }
+    .scrapbook-photo::before,
+    .scrapbook-photo::after {
+      content: '';
+      display: block;
+      position: absolute;
+      width: 32px;
+      height: 14px;
+      background: repeating-linear-gradient(45deg, #fbe8a6 0 6px, #fff 6px 12px);
+      border-radius: 8px;
+      opacity: 0.66;
+      z-index: 2;
+      top: -16px;
+      left: 13px;
+      transform: rotate(-8deg);
+    }
+    .scrapbook-photo::after {
+      left: unset;
+      right: 13px;
+      transform: rotate(8deg);
+    }
+    .note {
+      font-family: 'Great Vibes', cursive;
+      font-size: 1.4rem;
+      color: var(--accent);
+      background: var(--soft);
+      border-left: 4px solid var(--gold);
+      padding: 0.7em 1em;
+      margin: 1.2em auto 2em auto;
+      max-width: 500px;
+      border-radius: 24px;
+      box-shadow: 0 1px 8px #f3b8c450;
+    }
+    .dream-popup-bg {
+      position: fixed;
+      z-index: 3000;
+      left: 0; top: 0; width: 100vw; height: 100vh;
+      background: rgba(37,0,33,0.18);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: fadein 0.3s;
+    }
+    .dream-popup {
+      position: relative;
+      width: 350px;
+      max-width: 94vw;
+      background: rgba(255,245,249,0.97);
+      border-radius: 2.6em;
+      box-shadow: 0 12px 60px #f3b8c4cc, 0 1.5px 0px #fff;
+      padding: 2em 2em 2.3em 2em;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      overflow: visible;
+      animation: dreamPopShow 0.5s cubic-bezier(.68,-0.55,.27,1.55);
+    }
+    @keyframes dreamPopShow {
+      0% {transform: scale(0.7);}
+      70%{transform: scale(1.11);}
+      100%{transform: scale(1);}
+    }
+    .dream-popup-img {
+      width: 110px;
+      height: 110px;
+      border-radius: 50%;
+      object-fit: cover;
+      box-shadow: 0 2px 18px #f3b8c499, 0 1px 0px #fff;
+      border: 4px solid var(--accent);
+      margin-top: -70px;
+      margin-bottom: 1.2em;
+      background: #fff;
+      animation: floating-img 2.6s infinite alternate;
+    }
+    @keyframes floating-img {
+      0% {transform: translateY(-7px);}
+      100% {transform: translateY(7px);}
+    }
+    .dream-popup-message {
+      font-family: 'Great Vibes', cursive;
+      font-size: 1.35rem;
+      color: var(--text);
+      background: var(--lavender);
+      border-radius: 1.6em;
+      padding: 1.3em 1em 1.1em 1em;
+      margin-top: 0.2em;
+      box-shadow: 0 2px 14px #e4d6fa35;
+      min-height: 40px;
+      line-height: 1.6;
+      z-index: 2;
+      text-shadow: 0 1px 8px #f3b8c420;
+    }
+    .dream-popup-close {
+      position: absolute;
+      right: 18px; top: 10px;
+      background: none;
+      border: none;
+      font-size: 2em;
+      color: #b68bb4;
+      cursor: pointer;
+      z-index: 10;
+      transition: color 0.2s;
+      line-height: 1;
+    }
+    .dream-popup-close:hover {
+      color: #e7005b;
+      text-shadow: 0 2px 18px #f3b8c4;
+    }
+    /* Dreaming clouds */
+    .dream-cloud {
+      position: absolute;
+      background: #fff;
+      opacity: 0.7;
+      border-radius: 50%;
+      z-index: 1;
+      filter: blur(2px);
+      animation: cloudDrift 7s linear infinite;
+    }
+    @keyframes cloudDrift {
+      0% { left: -80px;}
+      100%{ left: 100%;}
+    }
+    /* Falling hearts in popup */
+    .popup-heart {
+      position: absolute;
+      pointer-events: none;
+      font-size: 1.7em;
+      z-index: 15;
+      animation: popupHeartDrop 1.3s ease-in forwards;
+      opacity: 0.85;
+    }
+    @keyframes popupHeartDrop {
+      0% {transform: translateY(-60px) scale(0.6) rotate(-12deg);}
+      60%{transform: translateY(110px) scale(1.2);}
+      100% {transform: translateY(210px) scale(0.8) rotate(8deg); opacity: 0;}
+    }
+    .heart {
+      position: fixed;
+      pointer-events: none;
+      width: 24px;
+      height: 24px;
+      z-index: 2000;
+      animation: floatHeart 2.7s linear forwards;
+    }
+    @keyframes floatHeart {
+      to {
+        transform: translateY(-120px) scale(1.4) rotate(18deg);
+        opacity: 0;
+      }
+    }
+    @media (max-width: 750px) {
+      section {
+        padding: 1rem 0.2rem 1.2rem 0.2rem;
+      }
+      .scrapbook-photo { width: 90px; height: 90px;}
+      .scrapbook-title {font-size:1.7rem;}
+      .music-player-fixed audio {width: 105px;}
+      .music-player-fixed {right: 4px;top: 7px;padding:0.18em 0.5em;}
+      .dream-popup { width: 97vw; padding: 1em 0.5em;}
+      .dream-popup-img { width: 72px; height: 72px;}
+      .dream-popup-message { font-size: 1.05rem;}
+    }
+  </style>
+</head>
+<body>
+  <div class="music-player-fixed" id="musicBar">
+    <audio id="mainAudio" controls loop>
+      <source src="https://files.catbox.moe/69v1kj.mp3" type="audio/mp3">
+      Your browser does not support the audio element.
+    </audio>
+    <span>Our Song</span>
+  </div>
+
+  <section id="home" class="active">
+    <div class="scrapbook-title">Our Romantic Scrapbook</div>
+    <div class="scrapbook-page" style="background:linear-gradient(135deg,#fff5f9 70%,#f3b8c4 100%);">
+      <img src="https://i.ibb.co/1fcNWCrc/IMG-1599.jpg" alt="Us Together" class="scrapbook-photo dreamy-img" style="width:220px;height:220px;">
+      <div class="note" style="margin-top:1.7em;">
+        Welcome to our digital scrapbook!<br>
+        Dive into the pages of our love, adventures, and memories, all set to the melody of our heart.<br>
+        Click next to begin our journey. 💖
+      </div>
+      <div style="margin-top:1.7rem;">
+        <img src="https://i.ibb.co/vrWSS5G/IMG-3716.jpg" alt="Love" class="scrapbook-photo dreamy-img">
+        <img src="https://i.ibb.co/kgFSPP39/IMG-3713.jpg" alt="" class="scrapbook-photo dreamy-img">
+        <img src="https://i.ibb.co/9k6c9zy7/IMG-3700.jpg" alt="" class="scrapbook-photo dreamy-img">
+      </div>
+      <button class="next-btn" onclick="goto('story')">Next: Our Story →</button>
+    </div>
+  </section>
+
+  <section id="story">
+    <div class="scrapbook-title">Our Story</div>
+    <div class="scrapbook-page">
+      <ul class="timeline">
+        <li>
+          <div class="icon">💌</div>
+          <div>
+            <strong>First Hello</strong>
+            <div class="desc">A sweet hello turned into a beautiful beginning. Our first meeting was the start of something magical.</div>
+          </div>
+        </li>
+        <li>
+          <div class="icon">🌸</div>
+          <div>
+            <strong>Growing Closer</strong>
+            <div class="desc">Long walks, laughter, and endless talks—we discovered the joy of being together.</div>
+          </div>
+        </li>
+        <li>
+          <div class="icon">🌅</div>
+          <div>
+            <strong>Adventures</strong>
+            <div class="desc">From sunsets to new places, every adventure became a cherished memory.</div>
+          </div>
+        </li>
+        <li>
+          <div class="icon">💍</div>
+          <div>
+            <strong>Forever Us</strong>
+            <div class="desc">With every moment, our hearts grew fonder. This is just the beginning of our forever.</div>
+          </div>
+        </li>
+      </ul>
+      <div style="margin-top:2.5rem;">
+        <img src="https://i.ibb.co/SY7nsc3/IMG-2266.jpg" alt="" class="scrapbook-photo dreamy-img">
+        <img src="https://i.ibb.co/jk5T57s6/IMG-2263.jpg" alt="" class="scrapbook-photo dreamy-img">
+        <img src="https://i.ibb.co/TDrHFYd3/IMG-1124.jpg" alt="" class="scrapbook-photo dreamy-img">
+      </div>
+      <button class="next-btn" onclick="goto('gallery1')">Next: Romantic Moments →</button>
+    </div>
+  </section>
+
+  <section id="gallery1">
+    <div class="scrapbook-title">Romantic Moments</div>
+    <div class="scrapbook-page">
+      <img src="https://i.ibb.co/2YtzXqP1/IMG-1109.jpg" class="scrapbook-photo dreamy-img" alt="">
+      <img src="https://i.ibb.co/v6jVZJgZ/762-FD234-8163-4-DF4-936-F-9-EADB7-D113-DF.jpg" class="scrapbook-photo dreamy-img" alt="">
+      <img src="https://i.ibb.co/rfbTpq7V/IMG-8843.jpg" class="scrapbook-photo dreamy-img" alt="">
+      <img src="https://i.ibb.co/N2MNQkQc/96-CEC433-4701-4192-A0-E9-F8-C1234-B181-A.jpg" class="scrapbook-photo dreamy-img" alt="">
+      <img src="https://i.ibb.co/GQDFnXY3/IMG-6999.jpg" class="scrapbook-photo dreamy-img" alt="">
+      <div class="note" style="margin-top:2em;">Click a photo and see the dreams and words it inspires. 🌙✨</div>
+      <button class="next-btn" onclick="goto('gallery2')">Next: Adventures →</button>
+    </div>
+  </section>
+
+  <section id="gallery2">
+    <div class="scrapbook-title">Adventures</div>
+    <div class="scrapbook-page">
+      <img src="https://i.ibb.co/VYSpQF8L/IMG-6018.png" class="scrapbook-photo dreamy-img" alt="">
+      <img src="https://i.ibb.co/Ld4cvLhd/IMG-5851.jpg" class="scrapbook-photo dreamy-img" alt="">
+      <img src="https://i.ibb.co/rfkVR5c2/IMG-5842.jpg" class="scrapbook-photo dreamy-img" alt="">
+      <img src="https://i.ibb.co/ZpS4kdKC/IMG-5410.jpg" class="scrapbook-photo dreamy-img" alt="">
+      <img src="https://i.ibb.co/TBhGXcCR/939b3a43-cfeb-4486-a9b0-dc0daca955eb.jpg" class="scrapbook-photo dreamy-img" alt="">
+      <button class="next-btn" onclick="goto('gallery3')">Next: Cute & Candid →</button>
+    </div>
+  </section>
+
+  <section id="gallery3">
+    <div class="scrapbook-title">Cute &amp; Candid</div>
+    <div class="scrapbook-page">
+      <img src="https://i.ibb.co/kgR3nvYW/IMG-4089.jpg" class="scrapbook-photo dreamy-img" alt="">
+      <img src="https://i.ibb.co/V0Rcq3kV/IMG-4083.jpg" class="scrapbook-photo dreamy-img" alt="">
+      <img src="https://i.ibb.co/b56r0sSQ/IMG-4066.jpg" class="scrapbook-photo dreamy-img" alt="">
+      <img src="https://i.ibb.co/qTh0SR8/IMG-2258.jpg" class="scrapbook-photo dreamy-img" alt="">
+      <img src="https://i.ibb.co/mrnN6NvR/IMG-2135.jpg" class="scrapbook-photo dreamy-img" alt="">
+      <img src="https://i.ibb.co/27XJ36ns/IMG-1167.jpg" class="scrapbook-photo dreamy-img" alt="">
+      <div class="note" style="margin-top:2em;">Click any image and see my dreamy thoughts. 🌈</div>
+      <button class="next-btn" onclick="goto('quotes')">Next: Love Quotes →</button>
+    </div>
+  </section>
+
+  <section id="quotes">
+    <div class="scrapbook-title">Love Quotes</div>
+    <div class="scrapbook-page">
+      <img src="https://i.ibb.co/QF6hcKz6/IMG-2256.jpg" class="scrapbook-photo dreamy-img" alt="">
+      <img src="https://i.ibb.co/mCgv9YjX/IMG-4088.jpg" class="scrapbook-photo dreamy-img" alt="">
+      <img src="https://i.ibb.co/d4K7fzYg/IMG-4085.jpg" class="scrapbook-photo dreamy-img" alt="">
+      <button class="next-btn" onclick="goto('memories')">Next: Memories →</button>
+    </div>
+  </section>
+
+  <section id="memories">
+    <div class="scrapbook-title">Memories</div>
+    <div class="scrapbook-page">
+      <ul class="memories-list">
+        <li onclick="photoSparkle(this)">Our first trip together – laughter, adventure, and endless photos!</li>
+        <li onclick="photoSparkle(this)">Coffee dates that turned into hours of conversation.</li>
+        <li onclick="photoSparkle(this)">That surprise on your birthday that made you smile all day.</li>
+        <li onclick="photoSparkle(this)">Walking hand in hand under the stars.</li>
+        <li onclick="photoSparkle(this)">All the silly selfies, candid clicks, and loving glances.</li>
+      </ul>
+      <img src="https://i.ibb.co/m5QpPyHP/69866bed-8a0e-4f29-9d1c-1984055ea4c6.jpg" class="scrapbook-photo dreamy-img" alt="">
+      <img src="https://i.ibb.co/qLMX8kPP/IMG-8587.jpg" class="scrapbook-photo dreamy-img" alt="">
+      <img src="https://i.ibb.co/GQp8sFSs/IMG-1840.jpg" class="scrapbook-photo dreamy-img" alt="">
+      <img src="https://i.ibb.co/3y2Mwy2v/IMG-2259.jpg" class="scrapbook-photo dreamy-img" alt="">
+      <button class="next-btn" onclick="goto('dedication')">Next: Dedication →</button>
+    </div>
+  </section>
+
+  <section id="dedication">
+    <div class="scrapbook-title">Dedication</div>
+    <div class="scrapbook-page">
+      <div class="dedication">
+        For us, for every moment, for every smile.<br>
+        <span style="font-size:1.4rem;color:#b68bb4;">Thank you for being my everything.</span>
+      </div>
+      <img src="https://i.ibb.co/SDSpJ0DV/74022-DD7-8-A77-499-B-AD48-B434418-A07-DF.png" class="scrapbook-photo dreamy-img" alt="">
+      <img src="https://i.ibb.co/XxdqwCPz/IMG-2265.jpg" class="scrapbook-photo dreamy-img" alt="">
+      <img src="https://i.ibb.co/fY44jnjL/IMG-3682.jpg" class="scrapbook-photo dreamy-img" alt="">
+      <button class="next-btn" onclick="goto('home')">Back to Cover ↺</button>
+    </div>
+  </section>
+
+  <canvas class="petals"></canvas>
+  <footer>
+    <div>Made with 💖 by Us &mdash; <span style="color:#f3b8c4">2025</span></div>
+    <div style="font-size:0.9em; margin-top:0.2em;">Music: <a href="https://files.catbox.moe/69v1kj.mp3" style="color:#db8eb6;" target="_blank">Listen</a></div>
+  </footer>
+
+  <script>
+    // Dreamy thoughts for each image (feel free to customize further)
+    const dreamyMessages = [
+      "Looking at this, I remember how lucky I am. My heart always finds its way back to you.",
+      "You and me, together, make every place feel like home.",
+      "With you, even ordinary days become extraordinary.",
+      "Every smile you share is a little spark in my soul.",
+      "Sometimes I wonder if I’m dreaming, because loving you feels so magical.",
+      "Every adventure with you is my favorite story.",
+      "You are the beautiful melody in the song of my life.",
+      "Your laughter is my favorite sound in the world.",
+      "You make my world softer, kinder, and brighter.",
+      "If I could, I'd give you the stars to show how much you mean to me.",
+      "My dreams always lead me back to you.",
+      "Love is in the little things you do for me every day.",
+      "You are the muse that inspires my happiest thoughts.",
+      "When I look at you, I see my forever.",
+      "You’re the poem I never want to stop writing.",
+      "You are my calm in every storm.",
+      "This moment, this feeling—forever in my heart.",
+      "You make love feel so easy, so right, so us.",
+      "The best part of my day is always you.",
+      "With you, I feel safe, cherished, and loved."
+    ];
+
+    // Attach dreamy popup to all scrapbook images
+    document.querySelectorAll('.dreamy-img').forEach(function(img, i) {
+      img.addEventListener('click', function(e) {
+        e.stopPropagation();
+        showDreamPopup(img.src, dreamyMessages[i % dreamyMessages.length]);
+      });
+    });
+
+    // Dreamy popup modal
+    function showDreamPopup(imgSrc, message) {
+      // Remove if already exists
+      let old = document.querySelector('.dream-popup-bg');
+      if(old) old.remove();
+
+      let bg = document.createElement('div');
+      bg.className = 'dream-popup-bg';
+
+      // Clouds (decoration)
+      for(let i=0; i<4; i++) {
+        let c = document.createElement('div');
+        c.className = 'dream-cloud';
+        c.style.width = (80+Math.random()*60)+'px';
+        c.style.height = (35+Math.random()*25)+'px';
+        c.style.top = (30+Math.random()*120)+'px';
+        c.style.left = (-70 + Math.random()*200)+'px';
+        c.style.opacity = 0.48 + Math.random()*0.3;
+        c.style.animationDuration = (6.5+Math.random()*2)+'s';
+        bg.appendChild(c);
+      }
+
+      // Popup
+      let pop = document.createElement('div');
+      pop.className = 'dream-popup';
+      pop.innerHTML = `
+        <button class="dream-popup-close" title="Close" onclick="this.closest('.dream-popup-bg').remove();event.stopPropagation();">&times;</button>
+        <img src="${imgSrc}" class="dream-popup-img" alt="Dreaming"/>
+        <div class="dream-popup-message">${message}</div>
+      `;
+      bg.appendChild(pop);
+
+      // Falling popup hearts
+      for(let i=0;i<7;i++) {
+        let h = document.createElement('span');
+        h.className = 'popup-heart';
+        h.innerHTML = "💖";
+        h.style.left = (40 + Math.random()*240) + "px";
+        h.style.top = (-60 + Math.random()*30) + "px";
+        h.style.fontSize = (1.2+Math.random()*1.2) + "em";
+        h.style.opacity = 0.85+Math.random()*0.15;
+        h.style.animationDelay = (Math.random()*0.6) + "s";
+        pop.appendChild(h);
+        setTimeout(()=>{if(h&&h.parentNode)h.parentNode.removeChild(h)}, 2000);
+      }
+
+      document.body.appendChild(bg);
+
+      // Remove popup on bg click
+      bg.onclick = function(ev){
+        if(ev.target===bg) bg.remove();
+      };
+    }
+
+    // General floating heart effect on background click
+    document.body.addEventListener('click', function(e) {
+      if(e.target.classList.contains('dreamy-img') || e.target.closest('.music-player-fixed')) return;
+      let heart = document.createElement('span');
+      heart.className = 'heart';
+      heart.innerHTML = '💖';
+      heart.style.left = (e.pageX-12) + 'px';
+      heart.style.top = (e.pageY-12) + 'px';
+      document.body.appendChild(heart);
+      setTimeout(()=>heart.remove(), 2600);
+    });
+
+    // Section navigation
+    function goto(id) {
+      document.querySelectorAll('section').forEach(sec => sec.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+      let burst = document.createElement('span');
+      burst.className = 'heart';
+      burst.innerHTML = '💖';
+      burst.style.left = (window.innerWidth/2-12)+'px';
+      burst.style.top = (window.scrollY+120)+'px';
+      document.body.appendChild(burst);
+      setTimeout(()=>burst.remove(), 2200);
+      window.scrollTo(0,0);
+    }
+
+    // Sparkle for memories-list
+    function photoSparkle(el) {
+      let sparkle = document.createElement('span');
+      sparkle.className = 'heart';
+      sparkle.innerHTML = '✨';
+      sparkle.style.left = (el.getBoundingClientRect().left+el.offsetWidth/2)+'px';
+      sparkle.style.top = (el.getBoundingClientRect().top+window.scrollY+25)+'px';
+      document.body.appendChild(sparkle);
+      el.classList.add('active');
+      setTimeout(()=>sparkle.remove(), 900);
+      setTimeout(()=>el.classList.remove('active'), 600);
+    }
+
+    // Falling petals animation
+    const canvas = document.querySelector('.petals');
+    const ctx = canvas.getContext('2d');
+    function resize() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+    const petals = [];
+    function randomPetal() {
+      return {
+        x: Math.random() * canvas.width,
+        y: -30,
+        r: 12 + Math.random() * 12,
+        s: 1.2 + Math.random() * 1.4,
+        a: Math.random() * Math.PI * 2,
+        drift: (Math.random() - 0.5) * 1.4,
+        color: Math.random() < 0.5 ? "#F3B8C4" : "#e4d6fa"
+      }
+    }
+    for(let i=0;i<32;i++) petals.push(randomPetal());
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for(let p of petals) {
+        ctx.save();
+        ctx.globalAlpha = 0.32 + 0.32 * Math.cos(p.y/34);
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.a);
+        ctx.beginPath();
+        ctx.ellipse(0, 0, p.r, p.r*0.56, 0, 0, 2*Math.PI);
+        ctx.fillStyle = p.color;
+        ctx.shadowColor = "#f3b8c4";
+        ctx.shadowBlur = 10;
+        ctx.fill();
+        ctx.restore();
+        p.y += p.s;
+        p.x += p.drift * Math.sin(p.y/100);
+        p.a += 0.004 * (Math.random() - 0.5);
+        if (p.y > canvas.height + 20) {
+          Object.assign(p, randomPetal(), {y: -30, x: Math.random()*canvas.width});
+        }
+      }
+      requestAnimationFrame(draw);
+    }
+    draw();
+
+    // Autoplay workaround for music
+    const audio = document.getElementById('mainAudio');
+    function autoPlayMusic() {
+      audio.muted = false;
+      audio.play().catch(()=>{});
+      document.body.removeEventListener('click', autoPlayMusic);
+      document.body.removeEventListener('touchstart', autoPlayMusic);
+    }
+    window.addEventListener('DOMContentLoaded', () => {
+      audio.muted = true;
+      setTimeout(() => {
+        audio.muted = false;
+        audio.play().catch(()=>{});
+      }, 700);
+      document.body.addEventListener('click', autoPlayMusic, {once:true});
+      document.body.addEventListener('touchstart', autoPlayMusic, {once:true});
+    });
+  </script>
+</body>
+</html>
